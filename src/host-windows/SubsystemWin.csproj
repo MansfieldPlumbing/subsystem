@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    subsystem-win — the Windows head: the platform-agnostic core (VOM + Cm + runspace + projection)
+    compiled as a plain console exe so the system can be RUN and INTERROGATED on the dev box
+    (curl /diag, /apps, /api/exec; query Cm + VOM; run cmdlets) without a device. Eyes, not parity:
+    no agent/LiteRT, no hardware drivers, no Android services.
+
+    Discipline: portable core files are LINKED from src/runspace (never copied); Windows-only seams
+    (Dg sink, DB path, no-op drivers) live HERE as separate files — no #if in shared files unless
+    unavoidable, and the Android build must stay green. Built bottom-up, a layer at a time:
+      1. Vom/*           — kernel self-tests (this layer)
+      2. + Cm            — registry against a %LocalAppData% DB
+      3. + runspace      — InitialSessionState + portable cmdlets
+      4. + projection    — HTTP on 127.0.0.1:8080
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net11.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>subsystem-win</AssemblyName>
+    <RollForward>LatestMajor</RollForward>
+  </PropertyGroup>
+
+  <!-- Layer 1: the VOM kernel. Pure System.* (verified) except the Dg sink, supplied by WinDg.cs.
+       Layer 2: Cm (volatile + SQLite registry). Data dir resolves through the WinMainActivity seam. -->
+  <ItemGroup>
+    <Compile Include="..\runspace\Vom\*.cs" LinkBase="Vom" />
+    <Compile Include="..\runspace\Cm\*.cs" LinkBase="Cm" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Same version the ship target pins; brings the bundled e_sqlite3 native for win-x64. -->
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>
