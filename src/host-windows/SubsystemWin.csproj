@@ -22,6 +22,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName>sswin</AssemblyName>
     <RollForward>LatestMajor</RollForward>
+    <!-- The Windows exe (taskbar / Explorer) icon — the same S-within-S mark as the Android launcher. -->
+    <ApplicationIcon>app.ico</ApplicationIcon>
   </PropertyGroup>
 
   <!-- Layer 1: the VOM kernel. Pure System.* (verified) except the Dg sink, supplied by WinDg.cs.
